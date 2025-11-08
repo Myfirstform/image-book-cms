@@ -10,10 +10,29 @@ interface GalleryImage {
 const Home = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchImages();
   }, []);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedImage(null);
+      }
+    };
+    
+    if (selectedImage) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedImage]);
 
   const fetchImages = async () => {
     try {
@@ -68,10 +87,65 @@ const Home = () => {
           display: block;
         }
 
+        .lightbox-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.9);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          padding: 2rem;
+          cursor: pointer;
+        }
+
+        .lightbox-image {
+          max-width: 90vw;
+          max-height: 90vh;
+          object-fit: contain;
+          border-radius: 8px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+          cursor: default;
+        }
+
+        .lightbox-close {
+          position: absolute;
+          top: 1.5rem;
+          right: 1.5rem;
+          color: white;
+          font-size: 2.5rem;
+          font-weight: 300;
+          cursor: pointer;
+          background: rgba(0, 0, 0, 0.5);
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.3s ease;
+          line-height: 1;
+        }
+
+        .lightbox-close:hover {
+          background: rgba(0, 0, 0, 0.8);
+        }
+
         @media (max-width: 768px) {
           .gallery-grid {
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 1rem;
+          }
+          
+          .lightbox-close {
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            font-size: 2rem;
           }
         }
       `}</style>
@@ -108,6 +182,7 @@ const Home = () => {
               className="gallery-item"
               data-aos="fade-up"
               data-aos-delay={index < 3 ? index * 50 : 0}
+              onClick={() => setSelectedImage(image.image_url)}
             >
               <img
                 src={image.image_url}
@@ -118,6 +193,23 @@ const Home = () => {
           ))
         )}
       </div>
+
+      {selectedImage && (
+        <div 
+          className="lightbox-overlay"
+          onClick={() => setSelectedImage(null)}
+        >
+          <span className="lightbox-close" onClick={() => setSelectedImage(null)}>
+            ×
+          </span>
+          <img
+            src={selectedImage}
+            alt="Full size"
+            className="lightbox-image"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 };
