@@ -136,8 +136,16 @@ const Home = () => {
 
         @media (max-width: 768px) {
           .gallery-grid {
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+          }
+          
+          .gallery-item {
+            border-radius: 8px;
+          }
+          
+          .gallery-item img {
+            height: 180px;
           }
           
           .lightbox-close {
@@ -146,6 +154,20 @@ const Home = () => {
             width: 40px;
             height: 40px;
             font-size: 2rem;
+          }
+          
+          .lightbox-overlay {
+            padding: 1rem;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .gallery-grid {
+            gap: 0.5rem;
+          }
+          
+          .gallery-item img {
+            height: 150px;
           }
         }
       `}</style>
