@@ -17,8 +17,8 @@ const GalleryManager = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
   useEffect(() => {
     fetchImages();
@@ -46,46 +46,53 @@ const GalleryManager = () => {
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const fileArray = Array.from(files);
+      setSelectedFiles(fileArray);
+      const urls = fileArray.map(file => URL.createObjectURL(file));
+      setPreviewUrls(urls);
     }
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
+    if (selectedFiles.length === 0) return;
 
     setUploading(true);
     try {
-      const fileExt = selectedFile.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const uploadPromises = selectedFiles.map(async (file) => {
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("gallery-images")
-        .upload(filePath, selectedFile);
+        const { error: uploadError } = await supabase.storage
+          .from("gallery-images")
+          .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("gallery-images")
-        .getPublicUrl(filePath);
+        const { data: { publicUrl } } = supabase.storage
+          .from("gallery-images")
+          .getPublicUrl(filePath);
+
+        return { image_url: publicUrl };
+      });
+
+      const uploadedImages = await Promise.all(uploadPromises);
 
       const { error: dbError } = await supabase
         .from("gallery_images")
-        .insert([{ image_url: publicUrl }]);
+        .insert(uploadedImages);
 
       if (dbError) throw dbError;
 
       toast({
         title: "Success",
-        description: "Image uploaded successfully!",
+        description: `${selectedFiles.length} image(s) uploaded successfully!`,
       });
 
-      setSelectedFile(null);
-      setPreviewUrl(null);
+      setSelectedFiles([]);
+      setPreviewUrls([]);
       fetchImages();
     } catch (error: any) {
       toast({
@@ -139,26 +146,32 @@ const GalleryManager = () => {
             <Input
               type="file"
               accept="image/*"
+              multiple
               onChange={handleFileSelect}
               className="flex-1"
             />
             <Button
               onClick={handleUpload}
-              disabled={!selectedFile || uploading}
+              disabled={selectedFiles.length === 0 || uploading}
             >
               <Upload className="mr-2 h-4 w-4" />
-              {uploading ? "Uploading..." : "Upload"}
+              {uploading ? "Uploading..." : `Upload ${selectedFiles.length > 0 ? `(${selectedFiles.length})` : ''}`}
             </Button>
           </div>
           
-          {previewUrl && (
+          {previewUrls.length > 0 && (
             <div className="mt-4">
-              <p className="text-sm text-muted-foreground mb-2">Preview:</p>
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="max-w-xs rounded-lg shadow-md"
-              />
+              <p className="text-sm text-muted-foreground mb-2">Preview ({previewUrls.length} image{previewUrls.length > 1 ? 's' : ''}):</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {previewUrls.map((url, index) => (
+                  <img
+                    key={index}
+                    src={url}
+                    alt={`Preview ${index + 1}`}
+                    className="w-full aspect-square object-cover rounded-lg shadow-md"
+                  />
+                ))}
+              </div>
             </div>
           )}
         </CardContent>
