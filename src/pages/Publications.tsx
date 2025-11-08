@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
 
 interface Book {
   id: string;
@@ -39,74 +35,144 @@ const Publications = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link to="/">
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Gallery
-                </Button>
-              </Link>
-              <h1 className="text-2xl font-bold text-foreground">Publications</h1>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div style={{ 
+      minHeight: '100vh',
+      fontFamily: "'Poppins', 'Open Sans', sans-serif",
+      backgroundColor: '#f8f9fa',
+      padding: '2rem 1rem'
+    }}>
+      <style>{`
+        .publications-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 1.5rem;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
 
-      {/* Books Grid */}
-      <main className="container mx-auto px-4 py-12">
+        .publication-card {
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          cursor: pointer;
+        }
+
+        .publication-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .publication-image {
+          width: 100%;
+          aspect-ratio: 3/4;
+          object-fit: cover;
+          display: block;
+        }
+
+        .publication-content {
+          padding: 1.25rem;
+        }
+
+        .publication-title {
+          font-size: 1.25rem;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          color: #1f2937;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .publication-description {
+          font-size: 0.875rem;
+          color: #6b7280;
+          margin-bottom: 1rem;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .publication-price {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #2563eb;
+        }
+
+        @media (max-width: 768px) {
+          .publications-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+          }
+        }
+      `}</style>
+
+      <div className="publications-grid">
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <Card key={i} className="overflow-hidden">
-                <div className="aspect-[3/4] bg-muted animate-pulse" />
-                <CardHeader>
-                  <div className="h-6 bg-muted rounded animate-pulse" />
-                  <div className="h-4 bg-muted rounded animate-pulse w-2/3" />
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
+          [...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                background: 'white',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <div style={{
+                width: '100%',
+                aspectRatio: '3/4',
+                backgroundColor: '#e0e0e0'
+              }} />
+              <div style={{ padding: '1.25rem' }}>
+                <div style={{
+                  height: '1.5rem',
+                  backgroundColor: '#e0e0e0',
+                  borderRadius: '4px',
+                  marginBottom: '0.5rem'
+                }} />
+                <div style={{
+                  height: '1rem',
+                  backgroundColor: '#e0e0e0',
+                  borderRadius: '4px',
+                  width: '66%'
+                }} />
+              </div>
+            </div>
+          ))
         ) : books.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground text-lg">No books published yet.</p>
+          <div style={{ 
+            gridColumn: '1 / -1',
+            textAlign: 'center', 
+            padding: '3rem 0',
+            color: '#6c757d',
+            fontSize: '1.1rem'
+          }}>
+            <p>No books published yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {books.map((book) => (
-              <Card
-                key={book.id}
-                className="group overflow-hidden hover:shadow-lg transition-shadow duration-300"
-              >
-                <div className="relative aspect-[3/4] overflow-hidden bg-muted">
-                  <img
-                    src={book.image_url}
-                    alt={book.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <CardHeader>
-                  <CardTitle className="line-clamp-2">{book.title}</CardTitle>
-                  {book.description && (
-                    <CardDescription className="line-clamp-3">
-                      {book.description}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardFooter>
-                  <p className="text-2xl font-bold text-primary">
-                    ${book.price.toFixed(2)}
-                  </p>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+          books.map((book) => (
+            <div key={book.id} className="publication-card">
+              <img
+                src={book.image_url}
+                alt={book.title}
+                className="publication-image"
+                loading="lazy"
+              />
+              <div className="publication-content">
+                <h3 className="publication-title">{book.title}</h3>
+                {book.description && (
+                  <p className="publication-description">{book.description}</p>
+                )}
+                <p className="publication-price">${book.price.toFixed(2)}</p>
+              </div>
+            </div>
+          ))
         )}
-      </main>
+      </div>
     </div>
   );
 };
