@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { LogIn, BookOpen } from "lucide-react";
 
 interface GalleryImage {
   id: string;
@@ -35,63 +32,100 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-foreground">Gallery</h1>
-            <div className="flex items-center gap-3">
-              <Link to="/publications">
-                <Button variant="ghost" size="sm">
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  Publications
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button size="sm">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Admin Login
-                </Button>
-              </Link>
-            </div>
+    <div style={{ 
+      minHeight: '100vh',
+      fontFamily: "'Poppins', 'Open Sans', sans-serif",
+      backgroundColor: '#f8f9fa'
+    }}>
+      {/* GALLERY SECTION */}
+      <section style={{ padding: '2rem 0' }}>
+        <div style={{ 
+          maxWidth: '1200px', 
+          margin: '0 auto', 
+          padding: '0 1rem' 
+        }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: '1.5rem',
+            marginTop: '2rem'
+          }}>
+            {loading ? (
+              // Loading skeleton
+              [...Array(8)].map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    backgroundColor: '#e0e0e0',
+                    height: '250px'
+                  }}
+                />
+              ))
+            ) : images.length === 0 ? (
+              <div style={{ 
+                gridColumn: '1 / -1',
+                textAlign: 'center', 
+                padding: '3rem 0',
+                color: '#6c757d',
+                fontSize: '1.1rem'
+              }}>
+                <p>No images yet. Admin can upload images from the dashboard.</p>
+              </div>
+            ) : (
+              images.map((image, index) => (
+                <div
+                  key={image.id}
+                  className="gallery-item"
+                  data-aos="fade-up"
+                  data-aos-delay={index < 3 ? index * 50 : 0}
+                  style={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-5px)';
+                    e.currentTarget.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                  }}
+                >
+                  <img
+                    src={image.image_url}
+                    alt={`Gallery image ${index + 1}`}
+                    loading="lazy"
+                    style={{
+                      width: '100%',
+                      height: '250px',
+                      objectFit: 'cover',
+                      display: 'block'
+                    }}
+                  />
+                </div>
+              ))
+            )}
           </div>
         </div>
-      </header>
+      </section>
 
-      {/* Gallery Grid */}
-      <main className="container mx-auto px-4 py-12">
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div
-                key={i}
-                className="aspect-square bg-muted rounded-lg animate-pulse"
-              />
-            ))}
-          </div>
-        ) : images.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground text-lg">No images yet. Admin can upload images from the dashboard.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {images.map((image) => (
-              <div
-                key={image.id}
-                className="group relative aspect-square overflow-hidden rounded-lg bg-muted shadow-md hover:shadow-xl transition-all duration-300"
-              >
-                <img
-                  src={image.image_url}
-                  alt="Gallery image"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
+      {/* Responsive styles for mobile */}
+      <style>{`
+        @media (max-width: 768px) {
+          section > div > div {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+            gap: 1rem !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
