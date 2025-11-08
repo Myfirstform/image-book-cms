@@ -142,10 +142,12 @@ const Home = () => {
           
           .gallery-item {
             border-radius: 8px;
+            aspect-ratio: 1;
           }
           
           .gallery-item img {
-            height: 180px;
+            height: 100%;
+            aspect-ratio: 1;
           }
           
           .lightbox-close {
@@ -164,10 +166,6 @@ const Home = () => {
         @media (max-width: 480px) {
           .gallery-grid {
             gap: 0.5rem;
-          }
-          
-          .gallery-item img {
-            height: 150px;
           }
         }
       `}</style>
