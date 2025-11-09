@@ -44,7 +44,7 @@ const Publications = () => {
   return (
     <div style={{ 
       minHeight: '100vh',
-      fontFamily: "'Poppins', 'Open Sans', sans-serif",
+      fontFamily: "'Noto Sans Malayalam', 'Manjari', 'Gayathri', 'Noto Sans', sans-serif",
       backgroundColor: '#f8f9fa',
       padding: '2rem 1rem'
     }}>
@@ -63,7 +63,9 @@ const Publications = () => {
           overflow: hidden;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
           transition: transform 0.3s ease, box-shadow 0.3s ease;
-          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
         }
 
         .publication-card:hover {
@@ -80,34 +82,35 @@ const Publications = () => {
 
         .publication-content {
           padding: 1.25rem;
+          display: flex;
+          flex-direction: column;
+          flex-grow: 1;
         }
 
         .publication-title {
-          font-size: 1.25rem;
+          font-size: 1.125rem;
           font-weight: 600;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.75rem;
           color: #1f2937;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
+          line-height: 1.6;
+          min-height: 3.2rem;
         }
 
         .publication-description {
-          font-size: 0.875rem;
-          color: #6b7280;
-          margin-bottom: 1rem;
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
+          font-size: 0.9rem;
+          color: #4b5563;
+          margin-bottom: auto;
+          line-height: 1.7;
+          min-height: 4.5rem;
+          padding-bottom: 1rem;
         }
 
         .publication-price {
           font-size: 1.5rem;
           font-weight: 700;
           color: #2563eb;
-          margin-bottom: 1rem;
+          margin-bottom: 0.75rem;
+          margin-top: auto;
         }
 
         .buy-button {
@@ -117,10 +120,11 @@ const Publications = () => {
           color: white;
           border: none;
           border-radius: 8px;
-          font-size: 1rem;
+          font-size: 0.95rem;
           font-weight: 600;
           cursor: pointer;
           transition: background-color 0.3s ease;
+          margin-top: auto;
         }
 
         .buy-button:hover {
