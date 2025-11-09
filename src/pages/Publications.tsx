@@ -1,7 +1,14 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { FaSearchPlus, FaSearchMinus, FaTimes, FaExpand, FaCompress, FaInfoCircle } from 'react-icons/fa';
+import { FaSearchPlus, FaSearchMinus, FaTimes, FaExpand, FaCompress, FaInfoCircle, FaUpload } from 'react-icons/fa';
 import { useHotkeys } from 'react-hotkeys-hook';
+import dynamic from 'next/dynamic';
+
+// Dynamically import BulkUpload to avoid SSR issues with file uploads
+const BulkUpload = dynamic(
+  () => import('@/components/BulkUpload'),
+  { ssr: false }
+);
 
 interface Book {
   id: string;
@@ -27,6 +34,7 @@ const Publications = () => {
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [gridZoom, setGridZoom] = useState(3); // Default zoom level (index in GRID_COLUMNS)
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
