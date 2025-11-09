@@ -34,6 +34,13 @@ const Publications = () => {
     }
   };
 
+  const handleBuyClick = (bookTitle: string, bookPrice: number) => {
+    const phoneNumber = "919746675758";
+    const message = `Hi, I would like to buy "${bookTitle}" for ₹${bookPrice.toFixed(2)}`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
+  };
+
   return (
     <div style={{ 
       minHeight: '100vh',
@@ -44,9 +51,9 @@ const Publications = () => {
       <style>{`
         .publications-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          grid-template-columns: repeat(5, 1fr);
           gap: 1.5rem;
-          max-width: 1200px;
+          max-width: 1400px;
           margin: 0 auto;
         }
 
@@ -100,12 +107,42 @@ const Publications = () => {
           font-size: 1.5rem;
           font-weight: 700;
           color: #2563eb;
+          margin-bottom: 1rem;
+        }
+
+        .buy-button {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          background-color: #25D366;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+
+        .buy-button:hover {
+          background-color: #20BA5A;
+        }
+
+        @media (max-width: 1200px) {
+          .publications-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
         }
 
         @media (max-width: 768px) {
           .publications-grid {
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .publications-grid {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>
@@ -167,7 +204,13 @@ const Publications = () => {
                 {book.description && (
                   <p className="publication-description">{book.description}</p>
                 )}
-                <p className="publication-price">${book.price.toFixed(2)}</p>
+                <p className="publication-price">₹{book.price.toFixed(2)}</p>
+                <button 
+                  className="buy-button"
+                  onClick={() => handleBuyClick(book.title, book.price)}
+                >
+                  Buy Now
+                </button>
               </div>
             </div>
           ))
