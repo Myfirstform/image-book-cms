@@ -1,6 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { FaSearchPlus, FaSearchMinus, FaTimes, FaExpand, FaCompress } from 'react-icons/fa';
+import { FaSearchPlus, FaSearchMinus, FaTimes, FaExpand, FaCompress, FaInfoCircle } from 'react-icons/fa';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 interface Book {
   id: string;
@@ -11,6 +12,11 @@ interface Book {
   created_at: string;
 }
 
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 3;
+const ZOOM_STEP = 0.25;
+const GRID_COLUMNS = [1, 2, 3, 4, 5]; // Columns for different zoom levels
+
 const Publications = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,8 +26,14 @@ const Publications = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [gridZoom, setGridZoom] = useState(3); // Default zoom level (index in GRID_COLUMNS)
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const gridContainerRef = useRef<HTMLDivElement>(null);
+
+  // Calculate grid columns based on zoom level
+  const gridColumns = GRID_COLUMNS[Math.min(gridZoom, GRID_COLUMNS.length - 1)];
 
   useEffect(() => {
     fetchBooks();
@@ -63,18 +75,63 @@ const Publications = () => {
     setIsFullscreen(false);
   };
 
-  const zoomIn = () => {
-    setScale(prev => Math.min(prev + 0.25, 3));
-  };
+  const zoomIn = useCallback(() => {
+    setScale(prev => Math.min(prev + ZOOM_STEP, MAX_ZOOM));
+    setGridZoom(prev => Math.max(prev - 1, 0));
+  }, []);
 
-  const zoomOut = () => {
-    setScale(prev => Math.max(prev - 0.25, 0.5));
-  };
+  const zoomOut = useCallback(() => {
+    setScale(prev => Math.max(prev - ZOOM_STEP, MIN_ZOOM));
+    setGridZoom(prev => Math.min(prev + 1, GRID_COLUMNS.length - 1));
+  }, []);
 
-  const resetZoom = () => {
+  const resetZoom = useCallback(() => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
-  };
+    setGridZoom(2); // Reset to default zoom level
+  }, []);
+
+  // Keyboard shortcuts for zooming
+  useHotkeys('ctrl+=, command+=', (e) => {
+    e.preventDefault();
+    zoomIn();
+  }, [zoomIn]);
+
+  useHotkeys('ctrl+-, command+-', (e) => {
+    e.preventDefault();
+    zoomOut();
+  }, [zoomOut]);
+
+  useHotkeys('0, escape', (e) => {
+    if (selectedImage) {
+      e.preventDefault();
+      closeImageModal();
+    } else {
+      resetZoom();
+    }
+  }, [selectedImage]);
+
+  const handleWheel = useCallback((e: WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
+      const newScale = Math.max(MIN_ZOOM, Math.min(scale + delta, MAX_ZOOM));
+      setScale(newScale);
+
+      // Adjust grid zoom based on scale
+      const newGridZoom = Math.round((1 - (newScale - MIN_ZOOM) / (MAX_ZOOM - MIN_ZOOM)) * (GRID_COLUMNS.length - 1));
+      setGridZoom(Math.min(Math.max(newGridZoom, 0), GRID_COLUMNS.length - 1));
+    }
+  }, [scale]);
+
+  // Add wheel event for grid zooming
+  useEffect(() => {
+    const gridContainer = gridContainerRef.current;
+    if (gridContainer) {
+      gridContainer.addEventListener('wheel', handleWheel, { passive: false });
+      return () => gridContainer.removeEventListener('wheel', handleWheel);
+    }
+  }, [handleWheel]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -127,21 +184,21 @@ const Publications = () => {
     setIsDragging(false);
   };
 
-  const handleWheel = (e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const delta = e.deltaY > 0 ? -0.1 : 0.1;
-      setScale(prev => Math.max(0.5, Math.min(prev + delta, 3)));
-    }
-  };
-
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      fontFamily: "'Noto Sans Malayalam', 'Manjari', 'Gayathri', 'Noto Sans', sans-serif",
-      backgroundColor: '#f8f9fa',
-      padding: '2rem 1rem'
-    }}>
+    <div 
+      ref={gridContainerRef}
+      style={{ 
+        minHeight: '100vh',
+        fontFamily: "'Noto Sans Malayalam', 'Manjari', 'Gayathri', 'Noto Sans', sans-serif",
+        backgroundColor: '#f8f9fa',
+        padding: '2rem 1rem',
+        transition: 'all 0.3s ease',
+        cursor: 'zoom-in',
+      }}
+      tabIndex={0}
+      role="grid"
+      aria-label="Publications grid"
+    >
       <style jsx global>{`
         @media (hover: hover) and (pointer: fine) {
           /* Hide scrollbar for Chrome, Safari and Opera */
@@ -154,27 +211,60 @@ const Publications = () => {
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
           }
+          
+          /* Smooth scrolling for grid */
+          .publications-grid {
+            scroll-behavior: smooth;
+          }
+        }
+        
+        /* Focus styles for better accessibility */
+        button:focus-visible, [tabindex="0"]:focus-visible {
+          outline: 3px solid #3b82f6;
+          outline-offset: 2px;
+        }
+        
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+          }
         }
       `}</style>
       <style>{`
         .publications-grid {
           display: grid;
-          grid-template-columns: repeat(5, 1fr);
+          grid-template-columns: repeat(${gridColumns}, minmax(200px, 1fr));
           gap: 1.5rem;
-          max-width: 1400px;
+          max-width: 1600px;
           margin: 0 auto;
+          padding: 1rem;
+          transition: grid-template-columns 0.3s ease;
         }
-
+        
         .publication-card {
+          position: relative;
           background: white;
           border-radius: 12px;
           overflow: hidden;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           display: flex;
           flex-direction: column;
           height: 100%;
+          will-change: transform, box-shadow;
+          transform: translateZ(0);
+          backface-visibility: hidden;
+          -webkit-font-smoothing: subpixel-antialiased;
         }
+        
+        .publication-card:focus-within {
+          box-shadow: 0 0 0 3px #3b82f6, 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
 
         .publication-card:hover {
           transform: translateY(-5px);
@@ -259,7 +349,7 @@ const Publications = () => {
         }
       `}</style>
 
-      <div className="publications-grid">
+      <div className="publications-grid" role="grid" aria-label="Publications">
         {loading ? (
           [...Array(6)].map((_, i) => (
             <div
@@ -300,18 +390,53 @@ const Publications = () => {
             color: '#6c757d',
             fontSize: '1.1rem'
           }}>
+            No publications found.
+          </div>
+        ) : (
+          books.map((book) => (
+            <div 
+              key={book.id}
+              style={{ 
+                position: 'relative', 
+                width: '100%', 
+                height: '100%', 
+                overflow: 'hidden',
+                cursor: 'zoom-in'
+              }}
+              onClick={() => openImageModal(book.image_url)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  openImageModal(book.image_url);
+                }
+              }}
+              aria-label={`View ${book.title} in full screen`}
+            >
               <img
                 src={book.image_url}
-                alt={book.title}
+                alt={`Cover of ${book.title}`}
                 className="publication-image"
-                style={{ cursor: 'zoom-in' }}
+                style={{ 
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transition: 'transform 0.3s ease',
+                }}
+                loading="lazy"
+                onLoad={(e) => {
+                  // Add a nice fade-in effect when image loads
+                  const target = e.target as HTMLImageElement;
+                  target.style.opacity = '1';
+                }}
+                style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
               />
             </div>
-            <div className="publication-content">
-              <h3 className="publication-title">{book.title}</h3>
-              {book.description && (
-                <p className="publication-description">{book.description}</p>
-              )}
+          ))
+        )}
+      </div>
+      </div>
               <p className="publication-price">₹{book.price.toFixed(2)}</p>
               <button 
                 className="buy-button"
