@@ -47,6 +47,36 @@ export type Database = {
         }
         Relationships: []
       }
+      faculties: {
+        Row: {
+          created_at: string | null
+          designation: string
+          id: string
+          image_url: string
+          name: string
+          updated_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          designation: string
+          id?: string
+          image_url: string
+          name: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          designation?: string
+          id?: string
+          image_url?: string
+          name?: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       gallery_images: {
         Row: {
           created_at: string | null

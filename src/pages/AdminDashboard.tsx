@@ -8,6 +8,7 @@ import { User, Session } from "@supabase/supabase-js";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GalleryManager from "@/components/admin/GalleryManager";
 import BooksManager from "@/components/admin/BooksManager";
+import FacultiesManager from "@/components/admin/FacultiesManager";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -131,9 +132,10 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="gallery" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-3 max-w-2xl">
             <TabsTrigger value="gallery">Gallery Images</TabsTrigger>
             <TabsTrigger value="books">Publications</TabsTrigger>
+            <TabsTrigger value="faculties">Faculties</TabsTrigger>
           </TabsList>
 
           <TabsContent value="gallery" className="mt-6">
@@ -142,6 +144,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="books" className="mt-6">
             <BooksManager />
+          </TabsContent>
+
+          <TabsContent value="faculties" className="mt-6">
+            <FacultiesManager />
           </TabsContent>
         </Tabs>
       </main>

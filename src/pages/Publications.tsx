@@ -2,13 +2,6 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { FaSearchPlus, FaSearchMinus, FaTimes, FaExpand, FaCompress, FaInfoCircle, FaUpload } from 'react-icons/fa';
 import { useHotkeys } from 'react-hotkeys-hook';
-import dynamic from 'next/dynamic';
-
-// Dynamically import BulkUpload to avoid SSR issues with file uploads
-const BulkUpload = dynamic(
-  () => import('@/components/BulkUpload'),
-  { ssr: false }
-);
 
 interface Book {
   id: string;
@@ -34,7 +27,6 @@ const Publications = () => {
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [gridZoom, setGridZoom] = useState(3); // Default zoom level (index in GRID_COLUMNS)
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -119,28 +111,6 @@ const Publications = () => {
     }
   }, [selectedImage]);
 
-  const handleWheel = useCallback((e: WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
-      const newScale = Math.max(MIN_ZOOM, Math.min(scale + delta, MAX_ZOOM));
-      setScale(newScale);
-
-      // Adjust grid zoom based on scale
-      const newGridZoom = Math.round((1 - (newScale - MIN_ZOOM) / (MAX_ZOOM - MIN_ZOOM)) * (GRID_COLUMNS.length - 1));
-      setGridZoom(Math.min(Math.max(newGridZoom, 0), GRID_COLUMNS.length - 1));
-    }
-  }, [scale]);
-
-  // Add wheel event for grid zooming
-  useEffect(() => {
-    const gridContainer = gridContainerRef.current;
-    if (gridContainer) {
-      gridContainer.addEventListener('wheel', handleWheel, { passive: false });
-      return () => gridContainer.removeEventListener('wheel', handleWheel);
-    }
-  }, [handleWheel]);
-
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       containerRef.current?.requestFullscreen().then(() => {
@@ -194,20 +164,14 @@ const Publications = () => {
 
   return (
     <div 
-      ref={gridContainerRef}
       style={{ 
         minHeight: '100vh',
         fontFamily: "'Noto Sans Malayalam', 'Manjari', 'Gayathri', 'Noto Sans', sans-serif",
         backgroundColor: '#f8f9fa',
         padding: '2rem 1rem',
-        transition: 'all 0.3s ease',
-        cursor: 'zoom-in',
       }}
-      tabIndex={0}
-      role="grid"
-      aria-label="Publications grid"
     >
-      <style jsx global>{`
+      <style>{`
         @media (hover: hover) and (pointer: fine) {
           /* Hide scrollbar for Chrome, Safari and Opera */
           .modal-open::-webkit-scrollbar {
@@ -404,60 +368,33 @@ const Publications = () => {
           books.map((book) => (
             <div 
               key={book.id}
-              style={{ 
-                position: 'relative', 
-                width: '100%', 
-                height: '100%', 
-                overflow: 'hidden',
-                cursor: 'zoom-in'
-              }}
-              onClick={() => openImageModal(book.image_url)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  openImageModal(book.image_url);
-                }
-              }}
-              aria-label={`View ${book.title} in full screen`}
+              className="publication-card"
             >
               <img
                 src={book.image_url}
                 alt={`Cover of ${book.title}`}
                 className="publication-image"
-                style={{ 
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  transition: 'transform 0.3s ease',
-                }}
                 loading="lazy"
-                onLoad={(e) => {
-                  // Add a nice fade-in effect when image loads
-                  const target = e.target as HTMLImageElement;
-                  target.style.opacity = '1';
-                }}
-                style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
+                onClick={() => openImageModal(book.image_url)}
+                style={{ cursor: 'zoom-in' }}
               />
+              <div className="publication-content">
+                <h3 className="publication-title">{book.title}</h3>
+                {book.description && (
+                  <p className="publication-description">{book.description}</p>
+                )}
+                <p className="publication-price">₹{book.price.toFixed(2)}</p>
+                <button 
+                  className="buy-button"
+                  onClick={() => handleBuyClick(book.title, book.price)}
+                >
+                  Buy Now
+                </button>
+              </div>
             </div>
           ))
         )}
       </div>
-      </div>
-              <p className="publication-price">₹{book.price.toFixed(2)}</p>
-              <button 
-                className="buy-button"
-                onClick={() => handleBuyClick(book.title, book.price)}
-              >
-                Buy Now
-              </button>
-            </div>
-          </div>
-        ))
-      )}
-    </div>
-    </div>
 
     {selectedImage && (
       <div 
@@ -482,7 +419,6 @@ const Publications = () => {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        onWheel={handleWheel}
       >
         <div 
           style={{
@@ -552,8 +488,9 @@ const Publications = () => {
         </div>
       </div>
     )}
-  </div>
-);
+    </div>
+  );
+};
 
 const buttonStyle = {
   background: 'rgba(0, 0, 0, 0.6)',
