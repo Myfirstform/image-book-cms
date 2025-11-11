@@ -14,33 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      faculties: {
-        Row: {
-          id: string
-          name: string
-          designation: string
-          image_url: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          designation: string
-          image_url?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          designation?: string
-          image_url?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       books: {
         Row: {
           created_at: string | null
