@@ -8,7 +8,7 @@ import { User, Session } from "@supabase/supabase-js";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GalleryManager from "@/components/admin/GalleryManager";
 import BooksManager from "@/components/admin/BooksManager";
-import FacultiesManager from "@/components/admin/FacultiesManager";
+import FacultiesManager from "@/components/faculty/FacultiesManager";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import FacultiesSection from "@/components/faculty/FacultiesSection";
 
 interface GalleryImage {
   id: string;
@@ -242,6 +243,10 @@ const Home = () => {
           />
         </div>
       )}
+      
+      {/* Faculties Section */}
+      <FacultiesSection />
+      
     </div>
   );
 };
