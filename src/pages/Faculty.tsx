@@ -36,13 +36,11 @@ const Faculty = () => {
   return (
     <div style={{ 
       minHeight: '100vh',
-      fontFamily: "'Poppins', 'Inter', sans-serif",
+      fontFamily: "'Poppins', 'Open Sans', sans-serif",
       backgroundColor: '#f8f9fa',
       padding: 0
     }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
         .faculties-section {
           padding: 4rem 2rem;
           background: #fff;
@@ -50,137 +48,72 @@ const Faculty = () => {
 
         .faculties-header {
           text-align: center;
-          margin-bottom: 3.5rem;
+          margin-bottom: 3rem;
         }
 
         .faculties-subtitle {
-          color: #004a70;
-          font-size: 0.875rem;
+          color: #2563eb;
+          font-size: 0.9rem;
           font-weight: 600;
           text-transform: uppercase;
-          letter-spacing: 1.5px;
-          margin-bottom: 0.75rem;
+          letter-spacing: 1px;
+          margin-bottom: 0.5rem;
         }
 
         .faculties-title {
-          font-size: 2.75rem;
+          font-size: 2.5rem;
           font-weight: 700;
-          color: #004a70;
+          color: #1f2937;
           margin: 0;
-          font-family: 'Poppins', sans-serif;
         }
 
         .faculties-grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
           gap: 2rem;
           max-width: 1200px;
           margin: 0 auto;
         }
 
         .faculty-card {
-          background: #ffffff;
+          background: #f8f9fa;
           border-radius: 16px;
           overflow: hidden;
-          transition: all 0.3s ease;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
           text-align: center;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-          padding: 1.5rem;
         }
 
         .faculty-card:hover {
           transform: translateY(-8px);
-          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
         }
 
         .faculty-image-wrapper {
-          background: #d2f1e1;
-          border-radius: 12px;
-          padding: 1.25rem;
-          margin-bottom: 1.25rem;
+          padding: 1.5rem 1.5rem 0;
         }
 
         .faculty-image {
           width: 100%;
           aspect-ratio: 1;
           object-fit: cover;
-          border-radius: 8px;
+          border-radius: 12px;
         }
 
         .faculty-info {
-          padding: 0;
+          padding: 1.5rem;
         }
 
         .faculty-name {
-          font-size: 1.125rem;
+          font-size: 1.1rem;
           font-weight: 600;
-          color: #004a70;
-          margin: 0 0 0.5rem;
-          font-family: 'Poppins', sans-serif;
+          color: #1f2937;
+          margin: 0 0 0.25rem;
         }
 
         .faculty-designation {
-          font-size: 0.875rem;
-          color: #e2b866;
-          font-weight: 500;
+          font-size: 0.85rem;
+          color: #6b7280;
           margin: 0;
-        }
-
-        .loading-skeleton {
-          background: #ffffff;
-          border-radius: 16px;
-          padding: 1.5rem;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .skeleton-image {
-          background: #d2f1e1;
-          border-radius: 12px;
-          padding: 1.25rem;
-          margin-bottom: 1.25rem;
-        }
-
-        .skeleton-img {
-          width: 100%;
-          aspect-ratio: 1;
-          background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
-          background-size: 200% 100%;
-          animation: shimmer 1.5s infinite;
-          border-radius: 8px;
-        }
-
-        .skeleton-text {
-          height: 1.25rem;
-          background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
-          background-size: 200% 100%;
-          animation: shimmer 1.5s infinite;
-          border-radius: 4px;
-          margin-bottom: 0.5rem;
-        }
-
-        .skeleton-subtext {
-          height: 1rem;
-          background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
-          background-size: 200% 100%;
-          animation: shimmer 1.5s infinite;
-          border-radius: 4px;
-          width: 60%;
-          margin: 0 auto;
-        }
-
-        @keyframes shimmer {
-          0% {
-            background-position: 200% 0;
-          }
-          100% {
-            background-position: -200% 0;
-          }
-        }
-
-        @media (max-width: 1024px) {
-          .faculties-grid {
-            grid-template-columns: repeat(3, 1fr);
-          }
         }
 
         @media (max-width: 768px) {
@@ -190,7 +123,7 @@ const Faculty = () => {
 
           .faculties-grid {
             grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
+            gap: 1rem;
           }
         }
         
@@ -200,12 +133,7 @@ const Faculty = () => {
           }
 
           .faculties-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-          }
-
-          .faculties-title {
-            font-size: 1.75rem;
+            gap: 0.75rem;
           }
         }
       `}</style>
@@ -219,12 +147,39 @@ const Faculty = () => {
         <div className="faculties-grid">
           {loadingFaculties ? (
             [...Array(8)].map((_, i) => (
-              <div key={i} className="loading-skeleton">
-                <div className="skeleton-image">
-                  <div className="skeleton-img" />
+              <div
+                key={i}
+                style={{
+                  background: '#f8f9fa',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                }}
+              >
+                <div style={{
+                  padding: '1.5rem 1.5rem 0',
+                }}>
+                  <div style={{
+                    width: '100%',
+                    aspectRatio: '1',
+                    backgroundColor: '#e0e0e0',
+                    borderRadius: '12px',
+                  }} />
                 </div>
-                <div className="skeleton-text" />
-                <div className="skeleton-subtext" />
+                <div style={{ padding: '1.5rem' }}>
+                  <div style={{
+                    height: '1.5rem',
+                    backgroundColor: '#e0e0e0',
+                    borderRadius: '4px',
+                    marginBottom: '0.5rem'
+                  }} />
+                  <div style={{
+                    height: '1rem',
+                    backgroundColor: '#e0e0e0',
+                    borderRadius: '4px',
+                    width: '60%',
+                    margin: '0 auto'
+                  }} />
+                </div>
               </div>
             ))
           ) : faculties.length === 0 ? (
@@ -238,10 +193,12 @@ const Faculty = () => {
               <p>No faculty members yet.</p>
             </div>
           ) : (
-            faculties.map((faculty) => (
+            faculties.map((faculty, index) => (
               <div
                 key={faculty.id}
                 className="faculty-card"
+                data-aos="fade-up"
+                data-aos-delay={index < 4 ? index * 50 : 0}
               >
                 <div className="faculty-image-wrapper">
                   <img
