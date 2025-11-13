@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GalleryManager from "@/components/admin/GalleryManager";
 import BooksManager from "@/components/admin/BooksManager";
 import FacultiesManager from "@/components/admin/FacultiesManager";
+import CoursesManager from "@/components/admin/CoursesManager";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -132,10 +133,11 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="gallery" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-2xl">
+          <TabsList className="grid w-full grid-cols-4 max-w-3xl">
             <TabsTrigger value="gallery">Gallery Images</TabsTrigger>
             <TabsTrigger value="books">Publications</TabsTrigger>
             <TabsTrigger value="faculties">Faculties</TabsTrigger>
+            <TabsTrigger value="courses">Courses</TabsTrigger>
           </TabsList>
 
           <TabsContent value="gallery" className="mt-6">
@@ -148,6 +150,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="faculties" className="mt-6">
             <FacultiesManager />
+          </TabsContent>
+
+          <TabsContent value="courses" className="mt-6">
+            <CoursesManager />
           </TabsContent>
         </Tabs>
       </main>
