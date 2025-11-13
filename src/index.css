@@ -32,6 +32,9 @@ All colors MUST be HSL.
     --teal-dark: 188 65% 35%;
     --teal-bg: 188 45% 92%;
     --gold: 38 92% 50%;
+    --dark-blue: 205 100 22;
+    --teal-blue: 188 100 26;
+    --gold-accent: 45 100 36;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
