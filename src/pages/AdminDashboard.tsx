@@ -116,13 +116,22 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-teal-bg via-background to-background">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+      <header className="border-b border-border/40 bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-            <Button variant="outline" onClick={handleLogout}>
+            <div>
+              <p className="text-xs uppercase tracking-wider text-gold-accent font-semibold mb-1">
+                MANAGEMENT PORTAL
+              </p>
+              <h1 className="text-3xl font-bold text-dark-blue">Admin Dashboard</h1>
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={handleLogout}
+              className="border-dark-blue text-dark-blue hover:bg-dark-blue hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               Logout
             </Button>
@@ -131,31 +140,53 @@ const AdminDashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="gallery" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 max-w-3xl">
-            <TabsTrigger value="gallery">Gallery Images</TabsTrigger>
-            <TabsTrigger value="books">Publications</TabsTrigger>
-            <TabsTrigger value="faculties">Faculties</TabsTrigger>
-            <TabsTrigger value="courses">Courses</TabsTrigger>
-          </TabsList>
+      <main className="container mx-auto px-6 py-12">
+        <div className="bg-white rounded-2xl shadow-lg p-8 border border-border/20">
+          <Tabs defaultValue="gallery" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 max-w-4xl mx-auto h-14 bg-teal-bg/50 p-1.5 rounded-xl">
+              <TabsTrigger 
+                value="gallery"
+                className="data-[state=active]:bg-teal-blue data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-medium transition-all duration-300"
+              >
+                Gallery Images
+              </TabsTrigger>
+              <TabsTrigger 
+                value="books"
+                className="data-[state=active]:bg-teal-blue data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-medium transition-all duration-300"
+              >
+                Publications
+              </TabsTrigger>
+              <TabsTrigger 
+                value="faculties"
+                className="data-[state=active]:bg-teal-blue data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-medium transition-all duration-300"
+              >
+                Faculties
+              </TabsTrigger>
+              <TabsTrigger 
+                value="courses"
+                className="data-[state=active]:bg-teal-blue data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-medium transition-all duration-300"
+              >
+                Courses
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="gallery" className="mt-6">
-            <GalleryManager />
-          </TabsContent>
+            <TabsContent value="gallery" className="mt-8">
+              <GalleryManager />
+            </TabsContent>
 
-          <TabsContent value="books" className="mt-6">
-            <BooksManager />
-          </TabsContent>
+            <TabsContent value="books" className="mt-8">
+              <BooksManager />
+            </TabsContent>
 
-          <TabsContent value="faculties" className="mt-6">
-            <FacultiesManager />
-          </TabsContent>
+            <TabsContent value="faculties" className="mt-8">
+              <FacultiesManager />
+            </TabsContent>
 
-          <TabsContent value="courses" className="mt-6">
-            <CoursesManager />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="courses" className="mt-8">
+              <CoursesManager />
+            </TabsContent>
+          </Tabs>
+        </div>
       </main>
     </div>
   );
