@@ -294,8 +294,8 @@ const Faculty = () => {
 
       <div className="faculties-section">
         <div className="faculties-header">
-          <p className="faculties-subtitle">OUR TEAM</p>
-          <h1 className="faculties-title">Faculties</h1>
+          <p className="faculties-subtitle">Our Esteemed</p>
+          <h1 className="faculties-title">Faculty Members</h1>
         </div>
 
         <div className="faculties-grid">
