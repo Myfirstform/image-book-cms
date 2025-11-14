@@ -162,13 +162,17 @@ const Login = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-6">
-          <Link to="/">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
+  <a
+    href="https://www.kundoormarkaz.com/index.html"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <Button variant="ghost" size="sm">
+      <ArrowLeft className="mr-2 h-4 w-4" />
+      Back to Home
+    </Button>
+  </a>
+</div>
 
         <Card>
           <CardHeader className="text-center">
