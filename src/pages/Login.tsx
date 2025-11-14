@@ -165,7 +165,7 @@ const Login = () => {
           <Link to="/">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Gallery
+              Back to Home
             </Button>
           </Link>
         </div>
@@ -174,7 +174,7 @@ const Login = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Admin Access</CardTitle>
             <CardDescription>
-              Sign in to manage gallery and publications
+              Sign in to manage the website
             </CardDescription>
           </CardHeader>
           <CardContent>
