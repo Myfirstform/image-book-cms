@@ -10,6 +10,7 @@ import GalleryManager from "@/components/admin/GalleryManager";
 import BooksManager from "@/components/admin/BooksManager";
 import FacultiesManager from "@/components/admin/FacultiesManager";
 import CoursesManager from "@/components/admin/CoursesManager";
+import FacilitiesManager from "@/components/admin/FacilitiesManager";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -143,7 +144,7 @@ const AdminDashboard = () => {
       <main className="container mx-auto px-6 py-12">
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-border/20">
           <Tabs defaultValue="gallery" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 max-w-4xl mx-auto h-14 bg-teal-bg/50 p-1.5 rounded-xl">
+            <TabsList className="grid w-full grid-cols-5 max-w-5xl mx-auto h-14 bg-teal-bg/50 p-1.5 rounded-xl">
               <TabsTrigger 
                 value="gallery"
                 className="data-[state=active]:bg-teal-blue data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-medium transition-all duration-300"
@@ -168,6 +169,12 @@ const AdminDashboard = () => {
               >
                 Courses
               </TabsTrigger>
+              <TabsTrigger 
+                value="facilities"
+                className="data-[state=active]:bg-teal-blue data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-medium transition-all duration-300"
+              >
+                Facilities
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="gallery" className="mt-8">
@@ -184,6 +191,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="courses" className="mt-8">
               <CoursesManager />
+            </TabsContent>
+
+            <TabsContent value="facilities" className="mt-8">
+              <FacilitiesManager />
             </TabsContent>
           </Tabs>
         </div>

@@ -83,6 +83,36 @@ export type Database = {
         }
         Relationships: []
       }
+      facilities: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string
+          title: string
+          updated_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url: string
+          title: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string
+          title?: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       faculties: {
         Row: {
           created_at: string | null
