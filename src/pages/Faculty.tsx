@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useIframeResize } from "@/hooks/useIframeResize";
 
 interface Faculty {
   id: string;
@@ -12,6 +13,8 @@ interface Faculty {
 const Faculty = () => {
   const [faculties, setFaculties] = useState<Faculty[]>([]);
   const [loadingFaculties, setLoadingFaculties] = useState(true);
+
+  useIframeResize();
 
   useEffect(() => {
     fetchFaculties();
