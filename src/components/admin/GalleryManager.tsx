@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Upload, Image as ImageIcon } from "lucide-react";
+import DeleteConfirmDialog from "./DeleteConfirmDialog";
 
 interface GalleryImage {
   id: string;
@@ -19,6 +20,8 @@ const GalleryManager = () => {
   const [uploading, setUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [imageToDelete, setImageToDelete] = useState<{ id: string; url: string } | null>(null);
 
   useEffect(() => {
     fetchImages();
@@ -105,9 +108,16 @@ const GalleryManager = () => {
     }
   };
 
-  const handleDelete = async (imageId: string, imageUrl: string) => {
+  const handleDeleteClick = (imageId: string, imageUrl: string) => {
+    setImageToDelete({ id: imageId, url: imageUrl });
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!imageToDelete) return;
+
     try {
-      const filePath = imageUrl.split("/").pop();
+      const filePath = imageToDelete.url.split("/").pop();
       if (filePath) {
         await supabase.storage.from("gallery-images").remove([filePath]);
       }
@@ -115,7 +125,7 @@ const GalleryManager = () => {
       const { error } = await supabase
         .from("gallery_images")
         .delete()
-        .eq("id", imageId);
+        .eq("id", imageToDelete.id);
 
       if (error) throw error;
 
@@ -131,6 +141,9 @@ const GalleryManager = () => {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setDeleteDialogOpen(false);
+      setImageToDelete(null);
     }
   };
 
@@ -213,7 +226,7 @@ const GalleryManager = () => {
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => handleDelete(image.id, image.image_url)}
+                      onClick={() => handleDeleteClick(image.id, image.image_url)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -224,6 +237,14 @@ const GalleryManager = () => {
           )}
         </CardContent>
       </Card>
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        title="Delete Image"
+        description="Are you sure you want to delete this image? This action cannot be undone."
+      />
     </div>
   );
 };
