@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Edit, Upload, X } from "lucide-react";
+import DeleteConfirmDialog from "./DeleteConfirmDialog";
 
 interface Facility {
   id: string;
@@ -25,6 +26,8 @@ const FacilitiesManager = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [facilityToDelete, setFacilityToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     fetchFacilities();
@@ -172,11 +175,16 @@ const FacilitiesManager = () => {
     setEditingId(facility.id);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this facility?")) return;
+  const handleDeleteClick = (id: string) => {
+    setFacilityToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!facilityToDelete) return;
 
     try {
-      const { error } = await supabase.from("facilities").delete().eq("id", id);
+      const { error } = await supabase.from("facilities").delete().eq("id", facilityToDelete);
 
       if (error) throw error;
 
@@ -192,6 +200,9 @@ const FacilitiesManager = () => {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setDeleteDialogOpen(false);
+      setFacilityToDelete(null);
     }
   };
 
@@ -347,7 +358,7 @@ const FacilitiesManager = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleDelete(facility.id)}
+                        onClick={() => handleDeleteClick(facility.id)}
                         className="flex-1 border-destructive/40 text-destructive hover:bg-destructive/10"
                       >
                         <Trash2 className="h-3 w-3 mr-1" />
@@ -361,6 +372,14 @@ const FacilitiesManager = () => {
           )}
         </CardContent>
       </Card>
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        title="Delete Facility"
+        description="Are you sure you want to delete this facility? This action cannot be undone."
+      />
     </div>
   );
 };

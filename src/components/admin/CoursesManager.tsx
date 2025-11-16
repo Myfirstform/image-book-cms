@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Pencil, Trash2, Upload, X } from "lucide-react";
+import DeleteConfirmDialog from "./DeleteConfirmDialog";
 
 interface Course {
   id: string;
@@ -28,6 +29,8 @@ const CoursesManager = () => {
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -182,11 +185,16 @@ const CoursesManager = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this course?")) return;
+  const handleDeleteClick = (id: string) => {
+    setCourseToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!courseToDelete) return;
 
     try {
-      const { error } = await supabase.from("courses").delete().eq("id", id);
+      const { error } = await supabase.from("courses").delete().eq("id", courseToDelete);
 
       if (error) throw error;
 
@@ -201,6 +209,9 @@ const CoursesManager = () => {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setDeleteDialogOpen(false);
+      setCourseToDelete(null);
     }
   };
 
@@ -350,7 +361,7 @@ const CoursesManager = () => {
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => handleDelete(course.id)}
+                      onClick={() => handleDeleteClick(course.id)}
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
                       Delete
@@ -367,6 +378,14 @@ const CoursesManager = () => {
           )}
         </CardContent>
       </Card>
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        title="Delete Course"
+        description="Are you sure you want to delete this course? This action cannot be undone."
+      />
     </div>
   );
 };

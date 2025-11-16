@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Edit, Plus, BookOpen } from "lucide-react";
+import DeleteConfirmDialog from "./DeleteConfirmDialog";
 
 interface Book {
   id: string;
@@ -32,6 +33,10 @@ const BooksManager = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  
+  // Delete confirmation state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState<{ id: string; imageUrl: string } | null>(null);
 
   useEffect(() => {
     fetchBooks();
@@ -167,9 +172,16 @@ const BooksManager = () => {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (bookId: string, imageUrl: string) => {
+  const handleDeleteClick = (bookId: string, imageUrl: string) => {
+    setBookToDelete({ id: bookId, imageUrl });
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!bookToDelete) return;
+
     try {
-      const filePath = imageUrl.split("/").pop();
+      const filePath = bookToDelete.imageUrl.split("/").pop();
       if (filePath) {
         await supabase.storage.from("book-images").remove([filePath]);
       }
@@ -177,7 +189,7 @@ const BooksManager = () => {
       const { error } = await supabase
         .from("books")
         .delete()
-        .eq("id", bookId);
+        .eq("id", bookToDelete.id);
 
       if (error) throw error;
 
@@ -193,6 +205,9 @@ const BooksManager = () => {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setDeleteDialogOpen(false);
+      setBookToDelete(null);
     }
   };
 
@@ -339,7 +354,7 @@ const BooksManager = () => {
                         variant="destructive"
                         size="sm"
                         className="flex-1"
-                        onClick={() => handleDelete(book.id, book.image_url)}
+                        onClick={() => handleDeleteClick(book.id, book.image_url)}
                       >
                         <Trash2 className="h-4 w-4 mr-1" />
                         Delete
@@ -352,6 +367,14 @@ const BooksManager = () => {
           )}
         </CardContent>
       </Card>
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        title="Delete Book"
+        description="Are you sure you want to delete this book? This action cannot be undone."
+      />
     </div>
   );
 };

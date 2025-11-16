@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, Trash2, Edit } from "lucide-react";
+import DeleteConfirmDialog from "./DeleteConfirmDialog";
 
 interface Faculty {
   id: string;
@@ -25,6 +26,8 @@ const FacultiesManager = () => {
     designation: "",
     image: null as File | null,
   });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [facultyToDelete, setFacultyToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -161,11 +164,16 @@ const FacultiesManager = () => {
     });
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this faculty member?")) return;
+  const handleDeleteClick = (id: string) => {
+    setFacultyToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!facultyToDelete) return;
 
     try {
-      const { error } = await supabase.from("faculties").delete().eq("id", id);
+      const { error } = await supabase.from("faculties").delete().eq("id", facultyToDelete);
 
       if (error) throw error;
 
@@ -180,6 +188,9 @@ const FacultiesManager = () => {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setDeleteDialogOpen(false);
+      setFacultyToDelete(null);
     }
   };
 
@@ -277,7 +288,7 @@ const FacultiesManager = () => {
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => handleDelete(faculty.id)}
+                      onClick={() => handleDeleteClick(faculty.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -288,6 +299,14 @@ const FacultiesManager = () => {
           )}
         </CardContent>
       </Card>
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        title="Delete Faculty"
+        description="Are you sure you want to delete this faculty member? This action cannot be undone."
+      />
     </div>
   );
 };
