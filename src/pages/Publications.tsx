@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { FaSearchPlus, FaSearchMinus, FaTimes, FaExpand, FaCompress, FaInfoCircle, FaUpload } from 'react-icons/fa';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useIframeResize } from "@/hooks/useIframeResize";
 
 interface Book {
   id: string;
@@ -20,6 +21,8 @@ const GRID_COLUMNS = [1, 2, 3, 4, 5]; // Columns for different zoom levels
 const Publications = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useIframeResize();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
