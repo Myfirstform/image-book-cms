@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useIframeResize } from "@/hooks/useIframeResize";
 
 interface GalleryImage {
   id: string;
@@ -13,7 +12,40 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  useIframeResize();
+  // Iframe height adjustment
+  useEffect(() => {
+    const sendHeight = () => {
+      const height = document.body.scrollHeight || document.documentElement.scrollHeight;
+      window.parent.postMessage({ type: "resize", height }, "*");
+    };
+
+    // Send on load
+    sendHeight();
+
+    // Send on window resize
+    window.addEventListener("resize", sendHeight);
+
+    // Send when images load
+    const images = document.querySelectorAll("img");
+    images.forEach((img) => {
+      img.addEventListener("load", sendHeight);
+    });
+
+    // Observe dynamic content changes
+    const observer = new MutationObserver(sendHeight);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      window.removeEventListener("resize", sendHeight);
+      images.forEach((img) => {
+        img.removeEventListener("load", sendHeight);
+      });
+      observer.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     fetchImages();
