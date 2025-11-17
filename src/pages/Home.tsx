@@ -47,6 +47,16 @@ const Home = () => {
     };
   }, []);
 
+  // Update height when lightbox opens/closes
+  useEffect(() => {
+    if (selectedImage) {
+      setTimeout(() => {
+        const height = document.body.scrollHeight || document.documentElement.scrollHeight;
+        window.parent.postMessage({ type: "resize", height }, "*");
+      }, 100);
+    }
+  }, [selectedImage]);
+
   useEffect(() => {
     fetchImages();
   }, []);
@@ -91,7 +101,8 @@ const Home = () => {
       minHeight: '100vh',
       fontFamily: "'Poppins', 'Open Sans', sans-serif",
       backgroundColor: '#f8f9fa',
-      padding: 0
+      padding: 0,
+      overflow: 'hidden'
     }}>
       <style>{`
         .gallery-section {
