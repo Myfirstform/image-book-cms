@@ -138,55 +138,31 @@ const Home = () => {
           display: block;
         }
 
-        /* Lightbox Modal - Rebuilt from scratch */
-        .lightbox-modal {
+        .lightbox-overlay {
           position: fixed;
           top: 0;
           left: 0;
-          width: 100%;
-          height: 100%;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.9);
           display: flex;
           align-items: center;
           justify-content: center;
-          background: rgba(0, 0, 0, 0.85);
-          z-index: 99999;
-          animation: fadeIn 0.2s ease-out;
+          z-index: 9999;
+          padding: 2rem;
           cursor: pointer;
         }
 
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        .lightbox-modal-image {
-          max-width: 90%;
-          max-height: 85vh;
-          width: auto;
-          height: auto;
+        .lightbox-image {
+          max-width: 90vw;
+          max-height: 90vh;
           object-fit: contain;
           border-radius: 8px;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
           cursor: default;
-          animation: scaleIn 0.2s ease-out;
         }
 
-        @keyframes scaleIn {
-          from {
-            transform: scale(0.95);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-
-        .lightbox-close-btn {
+        .lightbox-close {
           position: absolute;
           top: 1.5rem;
           right: 1.5rem;
@@ -194,25 +170,21 @@ const Home = () => {
           font-size: 2.5rem;
           font-weight: 300;
           cursor: pointer;
-          background: rgba(0, 0, 0, 0.6);
-          border: none;
+          background: rgba(0, 0, 0, 0.5);
           width: 50px;
           height: 50px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.3s ease;
+          transition: background 0.3s ease;
           line-height: 1;
-          z-index: 100000;
         }
 
-        .lightbox-close-btn:hover {
-          background: rgba(0, 0, 0, 0.9);
-          transform: scale(1.1);
+        .lightbox-close:hover {
+          background: rgba(0, 0, 0, 0.8);
         }
 
-        /* Tablet Responsive */
         @media (max-width: 768px) {
           .gallery-grid {
             grid-template-columns: repeat(2, 1fr);
@@ -229,21 +201,19 @@ const Home = () => {
             aspect-ratio: 1;
           }
           
-          .lightbox-modal-image {
-            max-width: 92%;
-            max-height: 80vh;
-          }
-          
-          .lightbox-close-btn {
+          .lightbox-close {
             top: 1rem;
             right: 1rem;
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             font-size: 2rem;
+          }
+          
+          .lightbox-overlay {
+            padding: 1rem;
           }
         }
         
-        /* Mobile Responsive */
         @media (max-width: 480px) {
           .gallery-section {
             padding: 3rem 1rem;
@@ -251,19 +221,6 @@ const Home = () => {
 
           .gallery-grid {
             gap: 0.5rem;
-          }
-
-          .lightbox-modal-image {
-            max-width: 95%;
-            max-height: 75vh;
-          }
-
-          .lightbox-close-btn {
-            top: 0.75rem;
-            right: 0.75rem;
-            width: 40px;
-            height: 40px;
-            font-size: 1.75rem;
           }
         }
       `}</style>
@@ -317,20 +274,16 @@ const Home = () => {
 
       {selectedImage && (
         <div 
-          className="lightbox-modal"
+          className="lightbox-overlay"
           onClick={() => setSelectedImage(null)}
         >
-          <button 
-            className="lightbox-close-btn"
-            onClick={() => setSelectedImage(null)}
-            aria-label="Close lightbox"
-          >
+          <span className="lightbox-close" onClick={() => setSelectedImage(null)}>
             ×
-          </button>
+          </span>
           <img
             src={selectedImage}
-            alt="Full size image"
-            className="lightbox-modal-image"
+            alt="Full size"
+            className="lightbox-image"
             onClick={(e) => e.stopPropagation()}
           />
         </div>
