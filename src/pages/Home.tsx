@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useIframeResize } from "@/hooks/useIframeResize";
 
 interface GalleryImage {
   id: string;
@@ -12,50 +13,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // Iframe height adjustment
-  useEffect(() => {
-    const sendHeight = () => {
-      const height = document.body.scrollHeight || document.documentElement.scrollHeight;
-      window.parent.postMessage({ type: "resize", height }, "*");
-    };
-
-    // Send on load
-    sendHeight();
-
-    // Send on window resize
-    window.addEventListener("resize", sendHeight);
-
-    // Send when images load
-    const images = document.querySelectorAll("img");
-    images.forEach((img) => {
-      img.addEventListener("load", sendHeight);
-    });
-
-    // Observe dynamic content changes
-    const observer = new MutationObserver(sendHeight);
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
-
-    return () => {
-      window.removeEventListener("resize", sendHeight);
-      images.forEach((img) => {
-        img.removeEventListener("load", sendHeight);
-      });
-      observer.disconnect();
-    };
-  }, []);
-
-  // Update height when lightbox opens/closes
-  useEffect(() => {
-    if (selectedImage) {
-      setTimeout(() => {
-        const height = document.body.scrollHeight || document.documentElement.scrollHeight;
-        window.parent.postMessage({ type: "resize", height }, "*");
-      }, 100);
-    }
-  }, [selectedImage]);
+  useIframeResize();
 
   useEffect(() => {
     fetchImages();
@@ -101,8 +59,7 @@ const Home = () => {
       minHeight: '100vh',
       fontFamily: "'Poppins', 'Open Sans', sans-serif",
       backgroundColor: '#f8f9fa',
-      padding: 0,
-      overflow: 'hidden'
+      padding: 0
     }}>
       <style>{`
         .gallery-section {
