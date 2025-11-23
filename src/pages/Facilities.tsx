@@ -2,7 +2,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, Library, Home, Users, BookOpen } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useIframeResize } from "@/hooks/useIframeResize";
+
+const sendHeight = () => {
+  const height = document.body.scrollHeight;
+  parent.postMessage({ iframeHeight: height }, "*");
+};
 
 interface Facility {
   id: string;
@@ -24,11 +28,26 @@ const Facilities = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useIframeResize();
-
   useEffect(() => {
     fetchFacilities();
   }, []);
+
+  // Send height updates to parent window
+  useEffect(() => {
+    // Send initial height
+    sendHeight();
+
+    // Add resize listener
+    window.addEventListener('resize', sendHeight);
+
+    // Check for dynamic content changes
+    const interval = setInterval(sendHeight, 500);
+
+    return () => {
+      window.removeEventListener('resize', sendHeight);
+      clearInterval(interval);
+    };
+  }, [facilities]);
 
   const fetchFacilities = async () => {
     try {

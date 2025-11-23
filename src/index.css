@@ -113,14 +113,8 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-  
-  html,
+
   body {
     @apply bg-background text-foreground;
-    height: auto;
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-    transition: height 0.3s ease;
   }
 }

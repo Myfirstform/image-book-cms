@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, GraduationCap, School } from "lucide-react";
-import { useIframeResize } from "@/hooks/useIframeResize";
 
 interface Course {
   id: string;
@@ -18,8 +17,6 @@ interface Course {
 const Courses = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useIframeResize();
 
   useEffect(() => {
     fetchCourses();

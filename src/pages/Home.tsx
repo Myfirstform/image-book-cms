@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useIframeResize } from "@/hooks/useIframeResize";
 
 interface GalleryImage {
   id: string;
@@ -12,8 +11,6 @@ const Home = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-  useIframeResize();
 
   useEffect(() => {
     fetchImages();
