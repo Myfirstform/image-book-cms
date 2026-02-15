@@ -47,6 +47,24 @@ export type Database = {
         }
         Relationships: []
       }
+      classes: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           created_at: string
@@ -163,6 +181,82 @@ export type Database = {
           uploaded_by?: string | null
         }
         Relationships: []
+      }
+      student_subjects: {
+        Row: {
+          created_at: string
+          grade: string
+          id: string
+          marks: number
+          student_id: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          grade?: string
+          id?: string
+          marks?: number
+          student_id: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          grade?: string
+          id?: string
+          marks?: number
+          student_id?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_subjects_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          class_id: string
+          created_at: string
+          dob: string
+          id: string
+          is_published: boolean
+          name: string
+          register_number: string
+          updated_at: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          dob: string
+          id?: string
+          is_published?: boolean
+          name: string
+          register_number: string
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          dob?: string
+          id?: string
+          is_published?: boolean
+          name?: string
+          register_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "students_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

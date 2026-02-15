@@ -11,6 +11,8 @@ import Courses from "./pages/Courses";
 import Facilities from "./pages/Facilities";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
+import StudentHome from "./pages/StudentHome";
+import StudentResult from "./pages/StudentResult";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +29,8 @@ const App = () => (
           <Route path="/faculty" element={<Faculty />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/facilities" element={<Facilities />} />
+          <Route path="/results" element={<StudentHome />} />
+          <Route path="/result/:id" element={<StudentResult />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
