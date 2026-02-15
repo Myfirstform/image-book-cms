@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Menu, X, LayoutDashboard, Image as ImageIcon, BookOpen, Building2, GraduationCap } from "lucide-react";
+import { LogOut, Menu, X, LayoutDashboard, Image as ImageIcon, BookOpen, Building2, GraduationCap, ClipboardList } from "lucide-react";
 import { User, Session } from "@supabase/supabase-js";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ import BooksManager from "@/components/admin/BooksManager";
 import FacultiesManager from "@/components/admin/FacultiesManager";
 import CoursesManager from "@/components/admin/CoursesManager";
 import FacilitiesManager from "@/components/admin/FacilitiesManager";
+import ResultsManager from "@/components/admin/ResultsManager";
 
 // Sidebar navigation items
 const sidebarItems = [
@@ -44,6 +45,12 @@ const sidebarItems = [
     label: "Facilities",
     icon: Building2,
     component: <FacilitiesManager />
+  },
+  { 
+    id: "results",
+    label: "Results",
+    icon: ClipboardList,
+    component: <ResultsManager />
   },
 ];
 
