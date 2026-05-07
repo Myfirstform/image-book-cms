@@ -284,12 +284,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_student_result: {
+        Args: { _dob: string; _register_number: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      lookup_student_id: {
+        Args: { _dob: string; _register_number: string }
+        Returns: string
       }
     }
     Enums: {
