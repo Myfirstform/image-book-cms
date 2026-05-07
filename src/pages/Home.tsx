@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import SecondaryAdmissionButton from "@/components/SecondaryAdmissionButton";
 
 interface GalleryImage {
   id: string;
@@ -179,8 +178,6 @@ const Home = () => {
           }
         }
       `}</style>
-
-      <SecondaryAdmissionButton />
 
       {/* Gallery Section */}
       <div className="gallery-section">
