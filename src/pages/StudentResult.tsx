@@ -30,30 +30,32 @@ const StudentResult = () => {
   useEffect(() => {
     const fetchResult = async () => {
       if (!id) return;
-      const { data: student, error } = await supabase
-        .from("students")
-        .select("name, register_number, is_published, classes(name)")
-        .eq("id", id)
-        .maybeSingle();
+      const stored = sessionStorage.getItem("result_lookup");
+      if (!stored) {
+        setLoading(false);
+        return;
+      }
+      const { register_number, dob } = JSON.parse(stored);
 
-      if (error || !student || !student.is_published) {
+      const { data: result, error } = await supabase.rpc("get_student_result", {
+        _register_number: register_number,
+        _dob: dob,
+      });
+
+      if (error || !result || (result as any).id !== id) {
         setLoading(false);
         return;
       }
 
-      const { data: subjects } = await supabase
-        .from("student_subjects")
-        .select("subject, marks, grade")
-        .eq("student_id", id);
-
-      const subs = subjects || [];
+      const r = result as any;
+      const subs: Subject[] = r.subjects || [];
       const total = subs.reduce((sum, s) => sum + Number(s.marks), 0);
       const hasFail = subs.some((s) => s.grade.toUpperCase() === "F" || Number(s.marks) < 35);
 
       setData({
-        name: student.name,
-        register_number: student.register_number,
-        class_name: (student.classes as any)?.name || "",
+        name: r.name,
+        register_number: r.register_number,
+        class_name: r.class_name || "",
         subjects: subs,
         total_marks: total,
         result: hasFail ? "FAIL" : "PASS",

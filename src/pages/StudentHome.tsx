@@ -28,21 +28,19 @@ const StudentHome = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("students")
-        .select("id, is_published")
-        .eq("register_number", registerNumber.trim())
-        .eq("dob", dob)
-        .maybeSingle();
+      const { data, error } = await supabase.rpc("lookup_student_id", {
+        _register_number: registerNumber.trim(),
+        _dob: dob,
+      });
 
       if (error) throw error;
 
       if (!data) {
-        toast({ title: "Not found", description: "No student found with the given details.", variant: "destructive" });
-      } else if (!data.is_published) {
-        toast({ title: "Results not published", description: "Your results have not been published yet.", variant: "destructive" });
+        toast({ title: "Not found", description: "No published result found for the given details.", variant: "destructive" });
       } else {
-        navigate(`/result/${data.id}`);
+        // Pass credentials via sessionStorage so result page can re-fetch securely
+        sessionStorage.setItem("result_lookup", JSON.stringify({ register_number: registerNumber.trim(), dob }));
+        navigate(`/result/${data}`);
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
