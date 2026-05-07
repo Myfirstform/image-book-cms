@@ -14,6 +14,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import StudentHome from "./pages/StudentHome";
 import StudentResult from "./pages/StudentResult";
 import SecondaryAdmission from "./pages/SecondaryAdmission";
+import SecondaryAdmissionForm from "./pages/SecondaryAdmissionForm";
 import AdmissionClosed from "./pages/AdmissionClosed";
 import NotFound from "./pages/NotFound";
 
