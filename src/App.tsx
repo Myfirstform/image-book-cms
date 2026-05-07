@@ -14,6 +14,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import StudentHome from "./pages/StudentHome";
 import StudentResult from "./pages/StudentResult";
 import SecondaryAdmission from "./pages/SecondaryAdmission";
+import SecondaryAdmissionForm from "./pages/SecondaryAdmissionForm";
 import AdmissionClosed from "./pages/AdmissionClosed";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/courses" element={<Courses />} />
           <Route path="/facilities" element={<Facilities />} />
           <Route path="/secondary-admission" element={<SecondaryAdmission />} />
+          <Route path="/secondary-admission-form" element={<SecondaryAdmissionForm />} />
           <Route path="/admission-closed" element={<AdmissionClosed />} />
           <Route path="/results" element={<StudentHome />} />
           <Route path="/result/:id" element={<StudentResult />} />
