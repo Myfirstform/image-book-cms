@@ -52,7 +52,7 @@ const SecondaryAdmission = () => {
   const handleSecondaryClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (status === "open") {
-      navigate("/secondary-admission-form");
+      window.location.href = "https://script.google.com/macros/s/AKfycbxe1YuksE3P3ymscOb0nfm5PdiulHexKVPFXHYQvThaQBu6Dud34wycIqMge4apExhM2w/exec";
     } else {
       navigate("/admission-closed");
     }
