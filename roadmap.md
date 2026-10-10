@@ -1,0 +1,3 @@
+- [ ] Add persisted, admin-only faculty ordering in the database.
+- [ ] Add drag-and-drop ordering to the Faculties manager and sort the public Faculty page.
+- [ ] Verify build and order persistence flow.
