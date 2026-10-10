@@ -135,6 +135,7 @@ export type Database = {
         Row: {
           created_at: string | null
           designation: string
+          display_order: number
           id: string
           image_url: string
           name: string
@@ -144,6 +145,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           designation: string
+          display_order?: number
           id?: string
           image_url: string
           name: string
@@ -153,6 +155,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           designation?: string
+          display_order?: number
           id?: string
           image_url?: string
           name?: string
@@ -319,6 +322,10 @@ export type Database = {
       lookup_student_id: {
         Args: { _dob: string; _register_number: string }
         Returns: string
+      }
+      reorder_faculties: {
+        Args: { _faculty_ids: string[] }
+        Returns: undefined
       }
     }
     Enums: {

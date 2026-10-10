@@ -5,8 +5,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Trash2, Edit } from "lucide-react";
+import { GripVertical, Upload, Trash2, Edit } from "lucide-react";
 import DeleteConfirmDialog from "./DeleteConfirmDialog";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface Faculty {
   id: string;
@@ -16,10 +34,69 @@ interface Faculty {
   created_at: string;
 }
 
+interface SortableFacultyCardProps {
+  faculty: Faculty;
+  disabled: boolean;
+  onEdit: (faculty: Faculty) => void;
+  onDelete: (id: string) => void;
+}
+
+const SortableFacultyCard = ({ faculty, disabled, onEdit, onDelete }: SortableFacultyCardProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: faculty.id, disabled });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={`border rounded-lg p-4 space-y-3 bg-card ${isDragging ? "z-10 ring-2 ring-primary shadow-lg opacity-80" : ""}`}
+    >
+      <div className="flex items-center justify-end">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label={`Reorder ${faculty.name}`}
+          title="Drag to reorder"
+          className="cursor-grab touch-none active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4" />
+        </Button>
+      </div>
+      <img
+        src={faculty.image_url}
+        alt={faculty.name}
+        className="w-full h-48 object-cover rounded-lg"
+      />
+      <div>
+        <h3 className="font-semibold text-foreground">{faculty.name}</h3>
+        <p className="text-sm text-muted-foreground">{faculty.designation}</p>
+      </div>
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" onClick={() => onEdit(faculty)} aria-label={`Edit ${faculty.name}`}>
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button variant="destructive" size="sm" onClick={() => onDelete(faculty.id)} aria-label={`Delete ${faculty.name}`}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 const FacultiesManager = () => {
   const [faculties, setFaculties] = useState<Faculty[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [savingOrder, setSavingOrder] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -39,7 +116,7 @@ const FacultiesManager = () => {
       const { data, error } = await supabase
         .from("faculties")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("display_order", { ascending: true });
 
       if (error) throw error;
       setFaculties(data || []);
@@ -199,6 +276,42 @@ const FacultiesManager = () => {
     setFormData({ name: "", designation: "", image: null });
   };
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleReorder = async ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id || savingOrder) return;
+
+    const previousOrder = faculties;
+    const fromIndex = previousOrder.findIndex((faculty) => faculty.id === active.id);
+    const toIndex = previousOrder.findIndex((faculty) => faculty.id === over.id);
+    if (fromIndex < 0 || toIndex < 0) return;
+
+    const reordered = arrayMove(previousOrder, fromIndex, toIndex);
+    setFaculties(reordered);
+    setSavingOrder(true);
+
+    try {
+      const { error } = await supabase.rpc("reorder_faculties", {
+        _faculty_ids: reordered.map((faculty) => faculty.id),
+      });
+      if (error) throw error;
+      toast({ title: "Success", description: "Faculty order updated successfully." });
+    } catch (error) {
+      setFaculties(previousOrder);
+      toast({
+        title: "Unable to update order",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingOrder(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -262,40 +375,21 @@ const FacultiesManager = () => {
           ) : faculties.length === 0 ? (
             <p className="text-muted-foreground">No faculties yet. Add your first one above.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {faculties.map((faculty) => (
-                <div
-                  key={faculty.id}
-                  className="border rounded-lg p-4 space-y-3 bg-card"
-                >
-                  <img
-                    src={faculty.image_url}
-                    alt={faculty.name}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-                  <div>
-                    <h3 className="font-semibold text-foreground">{faculty.name}</h3>
-                    <p className="text-sm text-muted-foreground">{faculty.designation}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(faculty)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteClick(faculty.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleReorder}>
+              <SortableContext items={faculties.map((faculty) => faculty.id)} strategy={rectSortingStrategy}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {faculties.map((faculty) => (
+                    <SortableFacultyCard
+                      key={faculty.id}
+                      faculty={faculty}
+                      disabled={savingOrder}
+                      onEdit={handleEdit}
+                      onDelete={handleDeleteClick}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           )}
         </CardContent>
       </Card>
